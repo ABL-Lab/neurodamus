@@ -62,6 +62,9 @@ class VirtualCellPopulation:
 
     def __str__(self):
         return "([VIRT] {:s})".format(self.population_name)
+    
+    def finalize(self):
+        return 
 
 
 class _CellManager(abc.ABC):
