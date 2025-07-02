@@ -56,7 +56,7 @@ from .report import create_report
 from .stimulus_manager import StimulusManager
 from .target_manager import TargetManager, TargetSpec
 from .utils.logging import log_stage, log_verbose
-from .utils.memory import DryRunStats, free_event_queues, pool_shrink, print_mem_usage, trim_memory
+from .utils.memory import DryRunStats, free_event_queues, pool_shrink, print_mem_usage, trim_memory, save_memory_kb
 from .utils.timeit import TimerManager, timeit
 from neurodamus.utils.pyutils import rmtree
 
@@ -1520,10 +1520,16 @@ class Node:
     def _psolve_loop(self, tstop):
         cur_t = round(Nd.t, 2)  # fp innnacuracies could lead to infinitesimal loops
         buffer_t = SimConfig.buffer_time
+        log_interval = SimConfig.log_memory
+        log_memory_path = Path(SimConfig.log_memory_path)
         for _ in range(math.ceil((tstop - cur_t) / buffer_t)):
             next_flush = min(tstop, cur_t + buffer_t)
             self._pc.psolve(next_flush)
             cur_t = next_flush
+
+            if log_interval and (cur_t % log_interval == 0):
+                save_memory_kb(output_path=log_memory_path/f'memory_log_t={cur_t}.pkl')
+                
         Nd.t = cur_t
 
     # -

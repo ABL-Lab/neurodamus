@@ -67,6 +67,10 @@ def neurodamus(args=None):
         --num-target-ranks=<number>  Number of ranks to target for dry-run load balancing
         --coreneuron-direct-mode     Run CoreNeuron in direct memory mode transfered from Neuron,
                                      without writing model data to disk.
+        --log-memory=<interval>      
+                                Log memory usage (in KiloBytes) across all ranks every <interval> ms
+                                into the memory_log directory. If not provided, memory
+                                logging is disabled. [default:None]
     """
     from . import __version__
 

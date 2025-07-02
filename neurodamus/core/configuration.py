@@ -72,6 +72,7 @@ class CliOptions(ConfigT):
     keep_axon = False
     coreneuron_direct_mode = False
     crash_test = False
+    log_memory = None
 
     # Restricted Functionality support, mostly for testing
 
@@ -215,6 +216,7 @@ class _SimConfig:
     num_target_ranks = None
     coreneuron_direct_mode = False
     crash_test_mode = False
+    log_memory = None
 
     _validators = []
     _cell_requirements = {}
@@ -1036,6 +1038,32 @@ def _coreneuron_direct_mode(config: _SimConfig):
     if direct_mode:
         logging.info("Run CORENEURON direct mode without writing model data to disk")
     config.coreneuron_direct_mode = direct_mode
+
+
+@SimConfig.validator
+def _log_memory(config: _SimConfig):
+    user_config = config.cli_options
+    log_memory = user_config.log_memory
+
+    if log_memory in (False, None, "false", "False", "off", "OFF", "none", "None"):
+        config.log_memory = None
+    else:
+        try:
+            interval = int(log_memory)
+            if interval <= 0:
+                raise ValueError
+            config.log_memory = interval
+            output_dir = Path(config.output_root) / "mem_log"
+            output_dir.mkdir(parents=True, exist_ok=True)
+            config.log_memory_path = output_dir
+        except (ValueError, TypeError):
+            raise ConfigurationError(
+                f"Invalid --log-memory value: {log_memory!r}. Expected positive integer or True/False."
+            )
+
+    # Enforce simulator support
+    if config.log_memory and not config.use_neuron:
+        raise ConfigurationError("--log-memory is only supported when using the NEURON simulator.")
 
 
 def get_debug_cell_gids(cli_options):

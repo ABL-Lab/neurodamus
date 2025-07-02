@@ -19,6 +19,7 @@ import psutil
 from .compat import Vector
 from neurodamus.core import MPI, NeuronWrapper as Nd, run_only_rank0
 from neurodamus.io.sonata_config import ConnectionTypes
+from ..core import Neuron
 
 # The factor to multiply the cell + synapses memory usage by to get the simulation memory estimate.
 # This is an heuristic estimate based on tests on multiple circuits.
@@ -163,6 +164,21 @@ def pretty_printing_memory_mb(memory_mb):
     return "%.2lf PB" % (memory_mb / 1024**3)
 
 
+def save_memory_kb(output_path:str|Path="memory_usage.pkl"):
+    """
+    Collects RSS memory usage from all ranks and saves to a pickle file (only on rank 0), in KiloBytes
+    """
+    usage_mb = get_mem_usage_kb()
+    mem_usages = Neuron.h.Vector()
+    MPI.pc.allgather(usage_mb, mem_usages)
+
+    if MPI.rank == 0:
+        mem_list = list(mem_usages)
+        with open(output_path, "wb") as f:
+            pickle.dump(mem_list, f)
+        print(f"\n[Rank 0] Saved memory usage to {output_path}\n")
+
+        
 @run_only_rank0
 def print_allocation_stats(rank_memory):
     """Print statistics of the memory allocation across ranks.
