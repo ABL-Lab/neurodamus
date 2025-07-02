@@ -1045,21 +1045,23 @@ def _log_memory(config: _SimConfig):
     user_config = config.cli_options
     log_memory = user_config.log_memory
 
-    if log_memory in (False, None, "false", "False", "off", "OFF", "none", "None"):
+    if log_memory in {False, None, "false", "False", "off", "OFF", "none", "None"}:
         config.log_memory = None
     else:
         try:
             interval = int(log_memory)
             if interval <= 0:
-                raise ValueError
+                raise ConfigurationError(f"""Expected positive integer for memory logging intervals.
+                                         Was given {interval}""")
             config.log_memory = interval
             output_dir = Path(config.output_root) / "mem_log"
             output_dir.mkdir(parents=True, exist_ok=True)
             config.log_memory_path = output_dir
-        except (ValueError, TypeError):
+        except (ValueError, TypeError) as err:
             raise ConfigurationError(
-                f"Invalid --log-memory value: {log_memory!r}. Expected positive integer or True/False."
-            )
+                f"""Invalid --log-memory value: {log_memory!r}.
+                Expected positive integer or True/False."""
+            ) from err
 
     # Enforce simulator support
     if config.log_memory and not config.use_neuron:

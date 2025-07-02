@@ -61,8 +61,8 @@ from .utils.memory import (
     free_event_queues,
     pool_shrink,
     print_mem_usage,
-    trim_memory,
     save_memory_kb,
+    trim_memory,
 )
 from .utils.timeit import TimerManager, timeit
 from neurodamus.utils.pyutils import rmtree

@@ -1,4 +1,5 @@
 """Collection of utility functions related to clearing the used memory in neurodamus-py or NEURON"""
+from __future__ import annotations
 
 import ctypes
 import ctypes.util
@@ -17,9 +18,8 @@ import numpy as np
 import psutil
 
 from .compat import Vector
-from neurodamus.core import MPI, NeuronWrapper as Nd, run_only_rank0
+from neurodamus.core import MPI, Neuron, NeuronWrapper as Nd, run_only_rank0
 from neurodamus.io.sonata_config import ConnectionTypes
-from ..core import Neuron
 
 # The factor to multiply the cell + synapses memory usage by to get the simulation memory estimate.
 # This is an heuristic estimate based on tests on multiple circuits.
@@ -165,8 +165,8 @@ def pretty_printing_memory_mb(memory_mb):
 
 
 def save_memory_kb(output_path: str | Path = "memory_usage.pkl"):
-    """
-    Collects RSS memory usage from all ranks and saves to a pickle file (only on rank 0), in KiloBytes
+    """Collects RSS memory usage from all ranks and saves to a pickle file.
+    Save is done only on rank 0, in KiloBytes.
     """
     usage_mb = get_mem_usage_kb()
     mem_usages = Neuron.h.Vector()
@@ -176,7 +176,6 @@ def save_memory_kb(output_path: str | Path = "memory_usage.pkl"):
         mem_list = list(mem_usages)
         with open(output_path, "wb") as f:
             pickle.dump(mem_list, f)
-        print(f"\n[Rank 0] Saved memory usage to {output_path}\n")
 
 
 @run_only_rank0
