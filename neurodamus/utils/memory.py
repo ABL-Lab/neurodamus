@@ -164,7 +164,7 @@ def pretty_printing_memory_mb(memory_mb):
     return "%.2lf PB" % (memory_mb / 1024**3)
 
 
-def save_memory_kb(output_path:str|Path="memory_usage.pkl"):
+def save_memory_kb(output_path: str | Path = "memory_usage.pkl"):
     """
     Collects RSS memory usage from all ranks and saves to a pickle file (only on rank 0), in KiloBytes
     """
@@ -178,7 +178,7 @@ def save_memory_kb(output_path:str|Path="memory_usage.pkl"):
             pickle.dump(mem_list, f)
         print(f"\n[Rank 0] Saved memory usage to {output_path}\n")
 
-        
+
 @run_only_rank0
 def print_allocation_stats(rank_memory):
     """Print statistics of the memory allocation across ranks.
