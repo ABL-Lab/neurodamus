@@ -1,4 +1,5 @@
 """Collection of utility functions related to clearing the used memory in neurodamus-py or NEURON"""
+
 from __future__ import annotations
 
 import ctypes
