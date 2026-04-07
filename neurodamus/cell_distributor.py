@@ -376,7 +376,9 @@ class CellManagerBase(_CellManager):
             cell.gid = final_gid  # update the cell.gid last (RNGs had to use the base gid)
             cell.raw_gid = raw_gid
 
+        pc.barrier()      # ALL ranks must finish cell setup before multisplit
         pc.multisplit()
+        pc.barrier()      # ensure multisplit topology exchange is complete everywhere
 
     def load_artificial_cell(self, gid, artificial_cell):
         logging.info(" > Adding Artificial cell for CoreNeuron")
